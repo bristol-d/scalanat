@@ -54,3 +54,76 @@ class TokeniserTests extends munit.FunSuite:
             ValueToken(false)
         ))
     }
+
+    test ("brackets without spaces") {
+        val tokens = Tokeniser("p/\\(q\\/r)")
+        assertEquals(tokens, Seq(
+            VariableToken("p"),
+            OperatorToken("/\\"),
+            OpenBracketToken(),
+            VariableToken("q"),
+            OperatorToken("\\/"),
+            VariableToken("r"),
+            CloseBracketToken()
+        ))
+    }
+
+    test ("brackets with spaces") {
+        val tokens = Tokeniser("p /\\ ( q \\/ r )")
+        assertEquals(tokens, Seq(
+            VariableToken("p"),
+            OperatorToken("/\\"),
+            OpenBracketToken(),
+            VariableToken("q"),
+            OperatorToken("\\/"),
+            VariableToken("r"),
+            CloseBracketToken()
+        ))
+    }
+
+    test ("nested brackets") {
+        val tokens = Tokeniser("not((a|b)&c)")
+        assertEquals(tokens, Seq(
+            OperatorToken("not"),
+            OpenBracketToken(),
+            OpenBracketToken(),
+            VariableToken("a"),
+            OperatorToken("|"),
+            VariableToken("b"),
+            CloseBracketToken(),
+            OperatorToken("&"),
+            VariableToken("c"),
+            CloseBracketToken()
+        ))
+    }
+
+    test ("nested brackets with spacing") {
+        val tokens = Tokeniser(" not ( ( a | b ) & c ) ")
+        assertEquals(tokens, Seq(
+            OperatorToken("not"),
+            OpenBracketToken(),
+            OpenBracketToken(),
+            VariableToken("a"),
+            OperatorToken("|"),
+            VariableToken("b"),
+            CloseBracketToken(),
+            OperatorToken("&"),
+            VariableToken("c"),
+            CloseBracketToken()
+        ))
+    }
+
+    test("tokens starting with T/F") {
+        assertEquals(Tokeniser("T => F"), Seq(
+            ValueToken(true),
+            OperatorToken("=>"),
+            ValueToken(false),
+        ))
+        assertEquals(Tokeniser("T=>F"), Seq(
+            ValueToken(true),
+            OperatorToken("=>"),
+            ValueToken(false),
+        ))
+        assertEquals(Tokeniser("Ta"), TokeniserProblem("At end of string, did not recognise token 'Ta'."))
+    }
+

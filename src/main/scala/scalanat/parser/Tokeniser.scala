@@ -16,6 +16,8 @@ sealed trait Token
 case class VariableToken(variable: String) extends Token
 case class ValueToken(value: Boolean) extends Token
 case class OperatorToken(operator: String) extends Token
+case class OpenBracketToken() extends Token
+case class CloseBracketToken() extends Token
 
 case class TokeniserProblem(message: String)
 
@@ -57,6 +59,9 @@ object Tokeniser:
                 // in this case, it's ok to strip a sequence of whitespace
                 case ' ' +: rest => tokenise((acc, rest), Scan.Start)
 
+                case '(' +: rest => tokenise((OpenBracketToken() +: acc, rest), Scan.Start)
+                case ')' +: rest => tokenise((CloseBracketToken() +: acc, rest), Scan.Start)
+
                 // variable: single letter followed by something non-letter
                 case a +: rest if is_letter(a) && not_alpha(rest) => tokenise((VariableToken(a.toString()) +: acc, rest), Scan.Start)
 
@@ -94,7 +99,7 @@ object Tokeniser:
                 case Seq() => if Symbols.contains(s) 
                               then (OperatorToken(s.toString()) +: acc) 
                               else TokeniserProblem(s"At end of string, did not recognise token '$s'.")
-                case a +: rest if s.length() <= 2 && !is_letter(a) && a != ' ' => tokenise((acc, rest), Scan.BBuffer(s + a))
+                case a +: rest if s.length() <= 2 && !is_alpha(a) && a != ' ' && a != '(' && a != ')' => tokenise((acc, rest), Scan.BBuffer(s + a))
                 case a +: rest if s.length() > 2 => TokeniserProblem(s"No operator starts with '$s'.")
 
                 // if we get here, we've found something that's not part of our operator.
