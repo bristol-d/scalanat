@@ -7,13 +7,19 @@ case class ParserProblem(message: String)
 case class InvalidOperatorException(message: String) extends RuntimeException(message)
 
 object Parser:
-    def apply(input: Seq[Token]): Term | ParserProblem =
-        parse(input)
+    def apply(input: String): Term | ParserProblem =
+        Tokeniser(input) match {
+            case TokeniserProblem(m) => ParserProblem(s"Tokeniser: $m")
+            case ts: Seq[Token] => parse(ts)
+        }
 
     def parse(input: Seq[Token]): Term | ParserProblem =
         val tokens = input map adjustToken
         val (out, rest) = parse_term(tokens)
-        out
+        rest match {
+            case Seq() => out
+            case _ => ParserProblem(s"parse: remaining tokens at end of string, first is ${rest.head}.")
+        }
 
     type parseR = (Term|ParserProblem, Seq[Token])
     type parseF = Seq[Token] => parseR
@@ -48,58 +54,70 @@ object Parser:
         (term, rest)
 
     /**
-     * TERM := TERM1 [or TERM1]*
+     * TERM := TERM1 [imp TERM1]*
      */
     def parse_term(tokens: Seq[Token]): parseR =
         val (t, rest) = parse_term1(tokens)
         t match {
             case ParserProblem(_) => (t, rest)
-            case tt: Term => parse_repeat(tt, "or", parse_term1, rest)
+            case tt: Term => parse_repeat(tt, "imp", parse_term1, rest)
         }
 
+
+
     /**
-     * TERM1 := TERM2 [and TERM3]* 
+     * TERM1 := TERM2 [or TERM2]*
      */
     def parse_term1(tokens: Seq[Token]): parseR =
         val (t, rest) = parse_term2(tokens)
         t match {
             case ParserProblem(_) => (t, rest)
-            case tt: Term => parse_repeat(tt, "and", parse_term2, rest)
+            case tt: Term => parse_repeat(tt, "or", parse_term2, rest)
         }
 
     /**
-     * TERM2 := not TERM2 | TERM3 
+     * TERM2 := TERM3 [and TERM3]* 
      */
     def parse_term2(tokens: Seq[Token]): parseR =
+        val (t, rest) = parse_term3(tokens)
+        t match {
+            case ParserProblem(_) => (t, rest)
+            case tt: Term => parse_repeat(tt, "and", parse_term3, rest)
+        }
+
+    /**
+     * TERM3 := not TERM3 | TERM4 
+     */
+    def parse_term3(tokens: Seq[Token]): parseR =
         if tokens.length > 0 && tokens(0) == OperatorToken("not") then
-            val (t, r) = parse_term2(safetail(tokens))
+            val (t, r) = parse_term3(safetail(tokens))
             t match {
                 case ParserProblem(_) => return (t, r)
                 case tt: Term => (NotTerm(tt), r)
             }
         else
-            parse_term3(tokens)
+            parse_term4(tokens)
     
     /**
-     * TERM3 := ( TERM ) | VALUE | VARIABLE
+     * TERM4 := ( TERM ) | VALUE | VARIABLE
      */
-    def parse_term3(tokens: Seq[Token]): parseR =
+    def parse_term4(tokens: Seq[Token]): parseR =
         tokens match {
             case (h +: t) =>
                 h match {
-                        case OperatorToken(op) => (ParserProblem(s"term3: expected variable or value, found keyword '$op'."), tokens)
+                        case OperatorToken(op) => (ParserProblem(s"term4: expected variable or value, found keyword '$op'."), tokens)
                         case ValueToken(v) => (ValueTerm(v), t)
                         case VariableToken(v) => (VariableTerm(v), t)
                         case OpenBracketToken() =>
                             parse_term(t) match {
                                 case (p @ ParserProblem(_), r) => (p, r)
                                 case (t: Term, CloseBracketToken() +: rr) => (t, rr)
-                                case _ => (ParserProblem("term3: Failed to find a ')' after a '('."), tokens)
+                                case _ => (ParserProblem("term4: Failed to find a ')' after a '('."), tokens)
                             }
                         case CloseBracketToken() =>
-                            (ParserProblem("term3: Closing bracket with no earlier opening bracket."), tokens)
+                            (ParserProblem("term4: Closing bracket with no earlier opening bracket."), tokens)
                 }
-            case Seq() => (ParserProblem("term3: end of token stream"), tokens)
+            case Seq() => (ParserProblem("term4: end of token stream"), tokens)
         }
 
     val OPERATORS = Map(

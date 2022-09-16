@@ -13,7 +13,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'T'") {
         val str = "T"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             ValueTerm(true)
         )
     }
@@ -21,7 +21,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'p and q'") {
         val str = "p and q"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             AndTerm(
                 VariableTerm("p"),
                 VariableTerm("q")
@@ -32,7 +32,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'p and q or r'") {
         val str = "p and q or r"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             OrTerm(
                 AndTerm(
                     VariableTerm("p"),
@@ -47,7 +47,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'p or q and r'") {
         val str = "p or q and r"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             OrTerm(
                 VariableTerm("p"),
                 AndTerm(
@@ -61,7 +61,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing '(p or q) and r'") {
         val str = "(p or q) and r"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             AndTerm(
                 OrTerm(
                     VariableTerm("p"),
@@ -75,7 +75,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'p and (q or r)'") {
         val str = "p and (q or r)"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             AndTerm(
                 VariableTerm("p"),
                 OrTerm(
@@ -89,7 +89,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'not p'") {
         val str = "not p"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             NotTerm(VariableTerm("p"))
         )
     }
@@ -97,7 +97,7 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'not not p'") {
         val str = "not not p"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             NotTerm(NotTerm(VariableTerm("p")))
         )
     }
@@ -105,13 +105,41 @@ class ParserTests extends munit.FunSuite:
     test("parsing 'not p or q'") {
         val str = "not p or q"
         val tokens = tokenise(str)
-        assertEquals(Parser(tokens),
+        assertEquals(Parser.parse(tokens),
             OrTerm(
                 NotTerm(VariableTerm("p")),
                 VariableTerm("q")
             )
         )
     }
+
+    test("parsing 'p imp q'") {
+        val str = "p imp q"
+        val tokens = tokenise(str)
+        assertEquals(Parser.parse(tokens),
+            ImpTerm(
+                VariableTerm("p"),
+                VariableTerm("q")
+            )
+        )
+    }
+
+    test("error on trailing tokens") {
+        val str = "p q"
+        val tokens = tokenise(str)
+        assertEquals(Parser.parse(tokens),
+            ParserProblem("parse: remaining tokens at end of string, first is VariableToken(q).")
+        )
+    }
+
+    test("error on trailing operator") {
+        val str = "p and"
+        val tokens = tokenise(str)
+        assertEquals(Parser.parse(tokens),
+            ParserProblem("parse: remaining tokens at end of string, first is OperatorToken(and).")
+        )
+    }
+
 
 
 
