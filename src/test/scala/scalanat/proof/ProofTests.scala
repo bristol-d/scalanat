@@ -3,11 +3,11 @@ package scalanat.proof
 import scalanat.{Result,Success,Failure}
 import scalanat.term.Term
 import scalanat.deduction.Sequent
-import scalanat.term.{Symbols, EnglishSymbols}
+import scalanat.term.{Symbols, AsciiSymbols}
 
 class ProofTests extends munit.FunSuite:
 
-    given Symbols = EnglishSymbols
+    given Symbols = AsciiSymbols
 
     // This whole method and its use should not exist, but the typechecker
     // yells at me if I don't do this and it's too late in the evening
@@ -38,7 +38,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule andI 3, 2
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: a ∧ b ⊢ b ∧ a")
+        assertSuccess(result, "Proved: a & b #- b & a")
 
     }
 
@@ -52,7 +52,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule andI 3, 6       # 7: a and (b and c)
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: (a ∧ b) ∧ c ⊢ a ∧ (b ∧ c)")
+        assertSuccess(result, "Proved: (a & b) & c #- a & (b & c)")
     }
 
     test("def of imp, forwards") {
@@ -60,15 +60,15 @@ class ProofTests extends munit.FunSuite:
                        |    assume a                  #  2
                        |        rule impE 1, 2        #  3: b
                        |        rule orI2 3 @ not a   #  4: not a or b
-                       |    discharge                 #  5: a ⊢ not a or b
+                       |    discharge                 #  5: a #- not a or b
                        |    assume not a              #  6
                        |        rule orI1 6 @ b       #  7: not a or b
-                       |    discharge                 #  8: not a ⊢ not a or b
+                       |    discharge                 #  8: not a |- not a or b
                        |    rule lem @ a              #  9: a or not a
                        |    rule orE 9, 5, 8          # 10: not a or b
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: a ⇒ b ⊢ ¬a ∨ b")
+        assertSuccess(result, "Proved: a => b #- ~a | b")
     }
 
     test ("def of imp, backwards") {
@@ -85,7 +85,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule impI 10              # 11: a imp b
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: ¬a ∨ b ⊢ a ⇒ b")
+        assertSuccess(result, "Proved: ~a | b #- a => b")
     }
 
     test("commutativity of or") {
@@ -100,7 +100,7 @@ class ProofTests extends munit.FunSuite:
                        |discharge
                        |""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: a ∨ b ⊢ b ∨ a")
+        assertSuccess(result, "Proved: a | b #- b | a")
     }
 
     test("assocativity of or") {
@@ -108,20 +108,20 @@ class ProofTests extends munit.FunSuite:
                        |    assume a
                        |        rule orI1 2 @ b
                        |        rule orI1 3 @ c
-                       |    discharge                # a ⊢ (a ∨ b) ∨ c
+                       |    discharge                # a |- (a | b) | c
                        |    assume b
                        |        rule orI2 6 @ a
                        |        rule orI1 7 @ c
-                       |    discharge                # b ⊢ (a ∨ b) ∨ c
+                       |    discharge                # b |- (a | b) | c
                        |    assume c
                        |        rule orI2 10 @ a or b
-                       |    discharge                # c ⊢ (a ∨ b) ∨ c
+                       |    discharge                # c |- (a | b) | c
                        |    assume b or c
                        |        rule orE 13, 9, 12
-                       |    discharge                # b ∨ c ⊢ (a ∨ b) ∨ c
+                       |    discharge                # b | c |- (a | b) | c
                        |    rule orE 1, 5, 15
                        |discharge
                        |""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: a ∨ (b ∨ c) ⊢ (a ∨ b) ∨ c")
+        assertSuccess(result, "Proved: a | (b | c) #- (a | b) | c")
     }

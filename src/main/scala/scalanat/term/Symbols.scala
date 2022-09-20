@@ -15,7 +15,7 @@ object EnglishSymbols extends Symbols:
     def or = "or"
     def imp = "imp"
     def not = "not"
-    def seq = "|-"
+    def seq = "seq"
 
 object DefaultSymbols extends Symbols:
     def and = "∧"
@@ -23,3 +23,10 @@ object DefaultSymbols extends Symbols:
     def imp = "⇒"
     def not = "¬"
     def seq = "⊢"
+
+object AsciiSymbols extends Symbols:
+    def and = "&"
+    def or = "|"
+    def imp = "=>"
+    def not = "~"
+    def seq = "#-"

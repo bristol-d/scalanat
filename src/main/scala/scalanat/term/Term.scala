@@ -15,7 +15,7 @@ case class ValueTerm(val value: Boolean) extends Term:
 case class NotTerm(child: Term) extends Term:
     def out(using symbols: Symbols): String = child match {
         // why can't we use BinaryTerm here ???
-        case AndTerm(_, _) | OrTerm(_, _) | ImpTerm(_, _) => s"¬(${child.out})"
+        case AndTerm(_, _) | OrTerm(_, _) | ImpTerm(_, _) => s"${symbols.not}(${child.out})"
         case _ => s"${symbols.not}${child.out}"
     }
 
@@ -67,4 +67,4 @@ case class ImpTerm(left: Term, right: Term) extends BinaryTerm(left, right):
             case AndTerm(_, _) | OrTerm(_, _) | ImpTerm(_, _)  => s"(${right.out})"
             case _ => right.out
         }
-        s"$ls ${symbols.not} $rs"
+        s"$ls ${symbols.imp} $rs"

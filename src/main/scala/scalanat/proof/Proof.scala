@@ -3,7 +3,7 @@ package scalanat.proof
 import scala.collection.mutable.ArrayBuffer
 
 import scalanat.term.Term
-import scalanat.term.{Symbols,DefaultSymbols}
+import scalanat.term.{Symbols,AsciiSymbols}
 import scalanat.deduction.Rule
 import scalanat.deduction.Sequent
 import scalanat.deduction.{RuleSuccess, RuleSuccessFree, RuleFailure}
@@ -39,7 +39,7 @@ class ProofException(val msg: String, val steps: Seq[(Int, Term|Sequent)]) exten
 case class ProofResult(val message: String, val steps: Seq[(Int, Term|Sequent)])
 
 object Proof:
-    def apply(lines: String): Result[ProofResult] =
+    def apply(lines: String)(using symbols: Symbols): Result[ProofResult] =
         ProofParser(lines) match {
             case Success(items) => Proof(items)
             // A failure from the parser carries no evaluation information
@@ -47,7 +47,7 @@ object Proof:
             case Failure(m, _) => Failure(m, None)
         }
 
-    def apply(lines: Seq[ProofLine]): Result[ProofResult] =
+    def apply(lines: Seq[ProofLine])(using symbols: Symbols): Result[ProofResult] =
         try 
             val s = apply2(lines)
             Success(s)
@@ -157,7 +157,7 @@ object Proof:
                 throw ProofException(s"Line $counter: line $i is already discharged.", Seq())
         }
 
-    def apply2(lines: Seq[ProofLine]): ProofResult =
+    def apply2(lines: Seq[ProofLine])(using symbols: Symbols): ProofResult =
         var counter = 1
         var activemap = Map[Int, Boolean]()
         var linemap = Map[Int, ValidatedLine]()
@@ -209,17 +209,17 @@ object Proof:
             }))
         }
 
-        given Symbols = DefaultSymbols
+        given Symbols = AsciiSymbols
 
         linemap(counter - 1) match {
             case VSequent(Sequent(Some(a), b)) =>
                 if noOpenAssumptions then
-                    ProofResult(s"Proved: ${a.out} ⊢ ${b.out}", steps.toSeq)
+                    ProofResult(s"Proved: ${a.out} ${symbols.seq} ${b.out}", steps.toSeq)
                 else
                     ProofResult("Proof validated, but with open assumptions.", steps.toSeq)
             case VSequent(Sequent(None, b)) =>
                 if noOpenAssumptions then
-                    ProofResult(s"Proved: ⊢ ${b.out}", steps.toSeq)
+                    ProofResult(s"Proved: ${symbols.seq} ${b.out}", steps.toSeq)
                 else
                     ProofResult("Proof validated, but with open assumptions.", steps.toSeq)
             case _ =>
