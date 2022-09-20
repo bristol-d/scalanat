@@ -1,8 +1,16 @@
 package scalanat.proof
 
-import scalanat.Success
+import scalanat.{Result,Success,Failure}
 
 class ProofTests extends munit.FunSuite:
+
+    def assertSuccess(result: Result[ProofResult], msg: String) = 
+        result match {
+            case Success(ProofResult(m, _)) => assertEquals(m, msg)
+            case Failure(m, None) => assert(false, "FAILED:\n" + m)
+            case Failure(m, Some(ProofResult(m, steps))) => 
+                assert(false, "\n" + m + "\nContext:\n")
+        }
 
     test("commutativity of and") {
         val source = """assume a and b
@@ -11,7 +19,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule andI 3, 2
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertEquals(result, Success("Proved: a ∧ b ⊢ b ∧ a"))
+        assertSuccess(result, "Proved: a ∧ b ⊢ b ∧ a")
 
     }
 
@@ -25,7 +33,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule andI 3, 6       # 7: a and (b and c)
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertEquals(result, Success("Proved: (a ∧ b) ∧ c ⊢ a ∧ (b ∧ c)"))
+        assertSuccess(result, "Proved: (a ∧ b) ∧ c ⊢ a ∧ (b ∧ c)")
     }
 
     test("def of imp, forwards") {
@@ -41,7 +49,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule orE 9, 5, 8          # 10: not a or b
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertEquals(result, Success("Proved: a ⇒ b ⊢ ¬a ∨ b"))
+        assertSuccess(result, "Proved: a ⇒ b ⊢ ¬a ∨ b")
     }
 
     test ("def of imp, backwards") {
@@ -58,5 +66,43 @@ class ProofTests extends munit.FunSuite:
                        |    rule impI 10              # 11: a imp b
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertEquals(result, Success("Proved: ¬a ∨ b ⊢ a ⇒ b"))
+        assertSuccess(result, "Proved: ¬a ∨ b ⊢ a ⇒ b")
+    }
+
+    test("commutativity of or") {
+        val source = """assume a or b
+                       |    assume a
+                       |        rule orI2 2 @ b  # B or A
+                       |    discharge            # A |- B or A
+                       |    assume b
+                       |        rule orI1 5 @ a  # B or A
+                       |    discharge            # B |- B or A
+                       |    rule orE 1, 4, 7
+                       |discharge
+                       |""".stripMargin
+        val result = Proof(source)
+        assertSuccess(result, "Proved: a ∨ b ⊢ b ∨ a")
+    }
+
+    test("assocativity of or") {
+        val source = """assume a or (b or c)
+                       |    assume a
+                       |        rule orI1 2 @ b
+                       |        rule orI1 3 @ c
+                       |    discharge                # a ⊢ (a ∨ b) ∨ c
+                       |    assume b
+                       |        rule orI2 6 @ a
+                       |        rule orI1 7 @ c
+                       |    discharge                # b ⊢ (a ∨ b) ∨ c
+                       |    assume c
+                       |        rule orI1 10 @ a or b
+                       |    discharge                # c ⊢ (a ∨ b) ∨ c
+                       |    assume b or c
+                       |        rule orE 13, 9, 12
+                       |    discharge                # b ∨ c ⊢ (a ∨ b) ∨ c
+                       |    rule orE 1, 5, 15
+                       |discharge
+                       |""".stripMargin
+        val result = Proof(source)
+        assertSuccess(result, "Proved: a ∨ (b ∨ c) ⊢ (a ∨ b) ∨ c")
     }

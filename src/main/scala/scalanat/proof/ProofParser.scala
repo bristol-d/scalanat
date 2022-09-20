@@ -56,17 +56,17 @@ object ProofParser:
             val lines: Seq[Int] = try
                 args.split(",").map(_.strip).flatMap(maybeToInt(_))
             catch case e: NumberFormatException =>
-                return Failure(s"Line ${index+1}: Failed to parse a line number.")
+                return Failure(s"Line ${index+1}: Failed to parse a line number.", None)
             if lines.length != rule.length then
-                Failure(s"Line ${index+1}: Rule '${rule.name}' requires ${rule.length} arguments but ${lines.length} were found.")
+                Failure(s"Line ${index+1}: Rule '${rule.name}' requires ${rule.length} arguments but ${lines.length} were found.", None)
             cont(rule, lines)               
         else
-            Failure(s"Line ${index+1}: No rule named '$name'.")
+            Failure(s"Line ${index+1}: No rule named '$name'.", None)
 
     def parseLine(line: String, index: Int): Result[ProofLine] = 
         stripIndentComment(line) match {
             case s"assume $t" => Parser(t) match {
-                case ParserProblem(msg) => Failure(s"Line ${index+1}: Parser: $msg")
+                case ParserProblem(msg) => Failure(s"Line ${index+1}: Parser: $msg", None)
                 case t: Term => Success(Assumption(t))
             }
             case "discharge" => Success(Discharge())
@@ -75,11 +75,11 @@ object ProofParser:
             }
             case RULE_LINE_FREE(name, args, ft) => parseRule(name, args, index) {
                 (rule, lines) => Parser(ft) match {
-                    case ParserProblem(e) => Failure(s"Line ${index+1}: Failed to parse free term: $e")
+                    case ParserProblem(e) => Failure(s"Line ${index+1}: Failed to parse free term: $e", None)
                     case t: Term => Success(RuleApplicationFreeTerm(rule, lines, t))
                 }
             }   
-            case x => Failure(s"Line ${index+1}: couldn't understand line '$x'. It must start with 'assume', 'rule' or 'discharge'.")
+            case x => Failure(s"Line ${index+1}: couldn't understand line '$x'. It must start with 'assume', 'rule' or 'discharge'.", None)
         }
 
 
