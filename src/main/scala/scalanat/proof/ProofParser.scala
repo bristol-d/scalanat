@@ -26,53 +26,61 @@ object ProofParser:
             .filter(l => l != "").zipWithIndex.map(parseLine)
         Result.applySeq(lines)
 
-    val RULE_LINE = "rule ([^ ]+) +([0-9, ]+)$".r
-    val RULE_LINE_FREE = "rule ([^ ]+) +([0-9, ]+) +@(.*)".r
+    val RULE_LINE = "rule ([^ ]+) +([0-9, ]*)$".r
+    val RULE_LINE_FREE = "rule ([^ ]+) +([0-9, ]*) *@(.*)".r
 
     def stripIndentComment(line: String): String =
         val line2 = line.stripLeading()
         val comment = line.indexOf("#")
         if comment > 0 then
-            line2.substring(0, comment)
+            line2.substring(0, comment).stripTrailing()
         else
-            line2
+            line2.stripTrailing()
 
-    def parseLine(line: String, index: Int): Result[ProofLine] = stripIndentComment(line) match {
-        case s"assume $t" => Parser(t) match {
-            case ParserProblem(msg) => Failure(s"Line ${index+1}: Parser: $msg")
-            case t: Term => Success(Assumption(t))
+    // Used when converting argument lists to integers.
+    // Since an empty list will be returned as Seq("") instead of Seq(),
+    // we need to handle this case specially to not get an exception.
+    def maybeToInt(s: String): Seq[Int] =
+        s match {
+            case "" => Seq()
+            case _ => Seq(s.toInt)
         }
-        case "discharge" => Success(Discharge())
-        case RULE_LINE(name, args) =>
-            if RULES.contains(name) then
-                val rule = RULES(name)
-                val lines: Seq[Int] = try
-                    args.split(",").map(_.strip).map(_.toInt)
-                catch case e: NumberFormatException =>
-                    return Failure(s"Line ${index+1}: Failed to parse a line number.")
-                if lines.length != rule.length then
-                    Failure(s"Line ${index+1}: Rule '${rule.name}' requires ${rule.length} arguments but ${lines.length} were found.")
-                Success(RuleApplication(rule, lines))                
-            else
-                Failure(s"Line ${index+1}: No rule named '$name'.")
-        case RULE_LINE_FREE(name, args, ft) =>
-            if RULES.contains(name) then
-                val rule = RULES(name)
-                val lines: Seq[Int] = try
-                    args.split(",").map(_.strip).map(_.toInt)
-                catch case e: NumberFormatException =>
-                    return Failure(s"Line ${index+1}: Failed to parse a line number.")
-                if lines.length != rule.length then
-                    Failure(s"Line ${index+1}: Rule '${rule.name}' requires ${rule.length} arguments but ${lines.length} were found.")
-                Parser(ft) match {
-                    case ParserProblem(e) => return Failure(s"Line ${index+1}: Failed to parse free term: $e")
+
+    // method that abstracts common code for RULE and RULE_FREE
+    // into a continuation
+    def parseRule(name: String, args: String, index: Int)
+                 (cont: (Rule, Seq[Int]) => Result[ProofLine]): 
+                  Result[ProofLine] =
+        if RULES.contains(name) then
+            val rule = RULES(name)
+            val lines: Seq[Int] = try
+                args.split(",").map(_.strip).flatMap(maybeToInt(_))
+            catch case e: NumberFormatException =>
+                return Failure(s"Line ${index+1}: Failed to parse a line number.")
+            if lines.length != rule.length then
+                Failure(s"Line ${index+1}: Rule '${rule.name}' requires ${rule.length} arguments but ${lines.length} were found.")
+            cont(rule, lines)               
+        else
+            Failure(s"Line ${index+1}: No rule named '$name'.")
+
+    def parseLine(line: String, index: Int): Result[ProofLine] = 
+        stripIndentComment(line) match {
+            case s"assume $t" => Parser(t) match {
+                case ParserProblem(msg) => Failure(s"Line ${index+1}: Parser: $msg")
+                case t: Term => Success(Assumption(t))
+            }
+            case "discharge" => Success(Discharge())
+            case r @ RULE_LINE(name, args) => parseRule(name, args, index) {
+                (rule, lines) => Success(RuleApplication(rule, lines))
+            }
+            case RULE_LINE_FREE(name, args, ft) => parseRule(name, args, index) {
+                (rule, lines) => Parser(ft) match {
+                    case ParserProblem(e) => Failure(s"Line ${index+1}: Failed to parse free term: $e")
                     case t: Term => Success(RuleApplicationFreeTerm(rule, lines, t))
                 }
-            else
-                Failure(s"Line ${index+1}: No rule named '$name'.")
-        
-        case _ => Failure(s"Line ${index+1}: couldn't understand line.")
-    }
+            }   
+            case x => Failure(s"Line ${index+1}: couldn't understand line '$x'. It must start with 'assume', 'rule' or 'discharge'.")
+        }
 
 
 

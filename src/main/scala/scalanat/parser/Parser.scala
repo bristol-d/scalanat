@@ -48,7 +48,7 @@ object Parser:
             t match {
                 case ParserProblem(_) => return (t, rest)
                 case tt: Term => 
-                    term = BinaryTerm(op, term, tt)
+                    term = BinaryTerms(op, term, tt)
                     rest = r
             }
         (term, rest)
