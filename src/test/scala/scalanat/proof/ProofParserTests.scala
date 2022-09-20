@@ -5,6 +5,7 @@ import scalanat.term.*
 import scalanat.deduction.ConjunctionIntroduction
 import scalanat.deduction.DisjunctionIntroduction1
 import scalanat.deduction.ImplicationElimination
+import scalanat.deduction.ConjunctionElimination1
 
 class ProofParserTests extends munit.FunSuite:
     
@@ -52,6 +53,21 @@ class ProofParserTests extends munit.FunSuite:
                 Assumption(ImpTerm(VariableTerm("p"), VariableTerm("q"))),
                 Assumption(VariableTerm("p")),
                 RuleApplication(ImplicationElimination, Seq(1, 2))
+            ))
+        )
+    }
+
+    test("discharging an assumption") {
+        val source = """assume p and q
+                       |    rule andE1 1
+                       |discharge
+        """.stripMargin
+        assertEquals(
+            ProofParser(source),
+            Success(Seq(
+                Assumption(AndTerm(VariableTerm("p"), VariableTerm("q"))),
+                RuleApplication(ConjunctionElimination1, Seq(1)),
+                Discharge()
             ))
         )
     }

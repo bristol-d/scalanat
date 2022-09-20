@@ -7,7 +7,7 @@ class ImplicationRuleTests extends munit.FunSuite:
     test("introducing an implication") {
         assertEquals(
             ImplicationIntroduction(Sequent(
-                VariableTerm("p"),
+                Some(VariableTerm("p")),
                 VariableTerm("q")
             )),
             RuleSuccess(

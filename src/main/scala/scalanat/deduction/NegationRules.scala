@@ -6,7 +6,7 @@ object NegationIntroduction extends Rule:
     val length = 1
     val name = "¬I"
     def apply(t: (Term|Sequent)*): RuleResult = t match {
-        case Seq(Sequent(a, ValueTerm(false))) => RuleSuccess(NotTerm(a))
+        case Seq(Sequent(Some(a), ValueTerm(false))) => RuleSuccess(NotTerm(a))
         case _ => RuleFailure(s"$name requires one sequent that concludes F.")
     }
 

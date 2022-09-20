@@ -41,8 +41,8 @@ class DisjunctionRuleTests extends munit.FunSuite:
         assertEquals(
             DisjunctionElimination(
                 OrTerm(VariableTerm("a"), VariableTerm("b")),
-                Sequent(VariableTerm("a"), VariableTerm("x")),
-                Sequent(VariableTerm("b"), VariableTerm("x"))
+                Sequent(Some(VariableTerm("a")), VariableTerm("x")),
+                Sequent(Some(VariableTerm("b")), VariableTerm("x"))
             ),
             RuleSuccess(VariableTerm("x"))
         )
@@ -56,8 +56,8 @@ class DisjunctionRuleTests extends munit.FunSuite:
             DisjunctionElimination(
                 // wrong sequent
                 OrTerm(VariableTerm("a"), VariableTerm("b")),
-                Sequent(VariableTerm("a"), VariableTerm("x")),
-                Sequent(VariableTerm("c"), VariableTerm("x"))
+                Sequent(Some(VariableTerm("a")), VariableTerm("x")),
+                Sequent(Some(VariableTerm("c")), VariableTerm("x"))
             ), RuleFailure(e1)
         )
 
@@ -65,8 +65,8 @@ class DisjunctionRuleTests extends munit.FunSuite:
             DisjunctionElimination(
                 // sequents back to front
                 OrTerm(VariableTerm("a"), VariableTerm("b")),
-                Sequent(VariableTerm("b"), VariableTerm("x")),
-                Sequent(VariableTerm("a"), VariableTerm("x"))
+                Sequent(Some(VariableTerm("b")), VariableTerm("x")),
+                Sequent(Some(VariableTerm("a")), VariableTerm("x"))
             ), RuleFailure(e1)
         )
 
@@ -74,8 +74,8 @@ class DisjunctionRuleTests extends munit.FunSuite:
             DisjunctionElimination(
                 // not a disjunction
                 AndTerm(VariableTerm("a"), VariableTerm("b")),
-                Sequent(VariableTerm("a"), VariableTerm("x")),
-                Sequent(VariableTerm("b"), VariableTerm("x"))
+                Sequent(Some(VariableTerm("a")), VariableTerm("x")),
+                Sequent(Some(VariableTerm("b")), VariableTerm("x"))
             ), RuleFailure(e2)
         )
 
@@ -83,8 +83,8 @@ class DisjunctionRuleTests extends munit.FunSuite:
             DisjunctionElimination(
                 // conclusions differ
                 OrTerm(VariableTerm("a"), VariableTerm("b")),
-                Sequent(VariableTerm("a"), VariableTerm("x")),
-                Sequent(VariableTerm("b"), VariableTerm("y"))
+                Sequent(Some(VariableTerm("a")), VariableTerm("x")),
+                Sequent(Some(VariableTerm("b")), VariableTerm("y"))
             ), RuleFailure(e1)
         )
     }

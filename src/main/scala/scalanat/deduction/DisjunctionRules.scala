@@ -24,7 +24,7 @@ object DisjunctionElimination extends Rule:
     val length = 3
     val name = "∨E"
     def apply(t: (Term|Sequent)*): RuleResult = t match {
-        case Seq(OrTerm(l, r), Sequent(a1, c1), Sequent(a2, c2)) =>
+        case Seq(OrTerm(l, r), Sequent(Some(a1), c1), Sequent(Some(a2), c2)) =>
             if l == a1 && r == a2 && c1 == c2 then
                 RuleSuccess(c1)
             else

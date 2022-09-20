@@ -8,7 +8,7 @@ class NegationRuleTests extends munit.FunSuite:
         assertEquals(
             NegationIntroduction(
                 Sequent(
-                    VariableTerm("p"),
+                    Some(VariableTerm("p")),
                     ValueTerm(false)
                 )
             ),
@@ -24,7 +24,7 @@ class NegationRuleTests extends munit.FunSuite:
         assertEquals(
             NegationIntroduction(
                 Sequent(
-                    VariableTerm("p"),
+                    Some(VariableTerm("p")),
                     ValueTerm(true)
                 )
             ),

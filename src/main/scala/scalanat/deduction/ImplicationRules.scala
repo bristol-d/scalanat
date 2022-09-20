@@ -6,7 +6,7 @@ object ImplicationIntroduction extends Rule:
     val length = 1
     val name = "⇒I"
     def apply(t: (Term|Sequent)*): RuleResult = t match {
-        case Seq(Sequent(a, b)) => RuleSuccess(ImpTerm(a, b))
+        case Seq(Sequent(Some(a), b)) => RuleSuccess(ImpTerm(a, b))
         case _ => RuleFailure(s"$name: requires a sequent.")
     }
 
