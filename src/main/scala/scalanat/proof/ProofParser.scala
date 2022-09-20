@@ -29,7 +29,7 @@ object ProofParser:
     val RULE_LINE = "rule ([^ ]+) +([0-9, ]+)$".r
     val RULE_LINE_FREE = "rule ([^ ]+) +([0-9, ]+) +@(.*)".r
 
-    def parseLine(line: String, index: Int): Result[ProofLine] = line match {
+    def parseLine(line: String, index: Int): Result[ProofLine] = line.stripLeading() match {
         case s"assume $t" => Parser(t) match {
             case ParserProblem(msg) => Failure(s"Line ${index+1}: Parser: $msg")
             case t: Term => Success(Assumption(t))
