@@ -8,7 +8,7 @@ class ProofTests extends munit.FunSuite:
         result match {
             case Success(ProofResult(m, _)) => assertEquals(m, msg)
             case Failure(m, None) => assert(false, "FAILED:\n" + m)
-            case Failure(m, Some(ProofResult(m, steps))) => 
+            case Failure(m, Some(ProofResult(mm, steps))) => 
                 assert(false, "\n" + m + "\nContext:\n")
         }
 
