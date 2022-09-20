@@ -3,6 +3,7 @@ package scalanat.proof
 import scala.collection.mutable.ArrayBuffer
 
 import scalanat.term.Term
+import scalanat.term.{Symbols,DefaultSymbols}
 import scalanat.deduction.Rule
 import scalanat.deduction.Sequent
 import scalanat.deduction.{RuleSuccess, RuleSuccessFree, RuleFailure}
@@ -207,6 +208,8 @@ object Proof:
                 case _ => true
             }))
         }
+
+        given Symbols = DefaultSymbols
 
         linemap(counter - 1) match {
             case VSequent(Sequent(Some(a), b)) =>

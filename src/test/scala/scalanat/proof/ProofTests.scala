@@ -1,15 +1,34 @@
 package scalanat.proof
 
 import scalanat.{Result,Success,Failure}
+import scalanat.term.Term
+import scalanat.deduction.Sequent
+import scalanat.term.{Symbols, EnglishSymbols}
 
 class ProofTests extends munit.FunSuite:
+
+    given Symbols = EnglishSymbols
+
+    // This whole method and its use should not exist, but the typechecker
+    // yells at me if I don't do this and it's too late in the evening
+    // to find out why.
+    def remap(t: Term|Sequent): Either[Term, Sequent] = t match {
+        case s: Sequent => Right(s)
+        case t: Term => Left(t)
+    }
 
     def assertSuccess(result: Result[ProofResult], msg: String) = 
         result match {
             case Success(ProofResult(m, _)) => assertEquals(m, msg)
             case Failure(m, None) => assert(false, "FAILED:\n" + m)
             case Failure(m, Some(ProofResult(mm, steps))) => 
-                assert(false, "\n" + m + "\nContext:\n")
+                assert(false, "\n" + m + "\nContext:\n" +
+                    steps.map((index, t) => {
+                        remap(t) match {
+                            case Left(l) => f"$index%02d: ${l.out}"
+                            case Right(r) => f"$index%02d: ${r.out}"
+                        }
+                }).mkString("\n"))
         }
 
     test("commutativity of and") {
@@ -95,7 +114,7 @@ class ProofTests extends munit.FunSuite:
                        |        rule orI1 7 @ c
                        |    discharge                # b ⊢ (a ∨ b) ∨ c
                        |    assume c
-                       |        rule orI1 10 @ a or b
+                       |        rule orI2 10 @ a or b
                        |    discharge                # c ⊢ (a ∨ b) ∨ c
                        |    assume b or c
                        |        rule orE 13, 9, 12

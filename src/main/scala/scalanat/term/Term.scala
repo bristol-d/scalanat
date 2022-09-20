@@ -1,22 +1,22 @@
 package scalanat.term
 
 sealed abstract class Term:
-    def out: String
+    def out(using symbols: Symbols): String
 
 case class VariableTerm(val variable: String) extends Term:
-    def out: String = variable
+    def out(using symbols: Symbols): String = variable
 
 case class ValueTerm(val value: Boolean) extends Term:
-    def out: String = value match {
+    def out(using symbols: Symbols): String = value match {
         case true => "T"
         case false => "F"
     }
 
 case class NotTerm(child: Term) extends Term:
-    def out: String = child match {
+    def out(using symbols: Symbols): String = child match {
         // why can't we use BinaryTerm here ???
         case AndTerm(_, _) | OrTerm(_, _) | ImpTerm(_, _) => s"¬(${child.out})"
-        case _ => s"¬${child.out}"
+        case _ => s"${symbols.not}${child.out}"
     }
 
 abstract class BinaryTerm(left: Term, right: Term) extends Term
@@ -34,7 +34,7 @@ object BinaryTerms:
         }
 
 case class AndTerm(left: Term, right: Term) extends BinaryTerm(left, right):
-    def out: String = 
+    def out(using symbols: Symbols): String = 
         val ls = left match {
             case AndTerm(_, _) => s"(${left.out})"
             case _ => left.out
@@ -43,10 +43,10 @@ case class AndTerm(left: Term, right: Term) extends BinaryTerm(left, right):
             case AndTerm(_, _) => s"(${right.out})"
             case _ => right.out
         }
-        s"$ls ∧ $rs"
+        s"$ls ${symbols.and} $rs"
 
 case class OrTerm(left: Term, right: Term) extends BinaryTerm(left, right):
-    def out: String = 
+    def out(using symbols: Symbols): String = 
         val ls = left match {
             case AndTerm(_, _) | OrTerm(_, _) => s"(${left.out})"
             case _ => left.out
@@ -55,10 +55,10 @@ case class OrTerm(left: Term, right: Term) extends BinaryTerm(left, right):
             case AndTerm(_, _) | OrTerm(_, _) => s"(${right.out})"
             case _ => right.out
         }
-        s"$ls ∨ $rs"
+        s"$ls ${symbols.or} $rs"
 
 case class ImpTerm(left: Term, right: Term) extends BinaryTerm(left, right):
-    def out: String = 
+    def out(using symbols: Symbols): String = 
         val ls = left match {
             case AndTerm(_, _) | OrTerm(_, _) | ImpTerm(_, _) => s"(${left.out})"
             case _ => left.out
@@ -67,4 +67,4 @@ case class ImpTerm(left: Term, right: Term) extends BinaryTerm(left, right):
             case AndTerm(_, _) | OrTerm(_, _) | ImpTerm(_, _)  => s"(${right.out})"
             case _ => right.out
         }
-        s"$ls ⇒ $rs"
+        s"$ls ${symbols.not} $rs"
