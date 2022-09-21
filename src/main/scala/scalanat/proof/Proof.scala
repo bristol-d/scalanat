@@ -209,8 +209,6 @@ object Proof:
             }))
         }
 
-        given Symbols = AsciiSymbols
-
         linemap(counter - 1) match {
             case VSequent(Sequent(Some(a), b)) =>
                 if noOpenAssumptions then
