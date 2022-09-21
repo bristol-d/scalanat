@@ -8,7 +8,8 @@
     <body>
         <script src="./target/scala-3.2.0/scalanat-web-fastopt/main.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.11.0/ace.js" integrity="sha512-NO/iPwtX2eO94dRYExWxykTKj8OtABi19cQWCwblHUZpMSymLo3Oc9WCT2LM3F8SSkrZBCS+NtEeDhI9fkaSfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="main.js"></script>
+        <script src="highlight.js"></script>
+        <script src="main.js" defer></script>
         <main>
             <div class="window">
                 <h1>Proof Editor</h1>
@@ -28,6 +29,10 @@ discharge
                         <li>impE(imp-term, term), impI(sequent)</li>
                         <li>notE(term, not-term), notI(sequent), lem()*, falsum(term)*</li>
                     </ul>
+                    <h2>Operators</h2>
+                    <ul>
+                        <li class="rules">and, or, not, imp</li>
+                    </ul>
                 </div>
             </div>
             <div class="window">
@@ -37,12 +42,5 @@ discharge
                 <div id="resultTrace"></div>
             </div>
         </main>
-        <script>
-            var editor = ace.edit("editor", {
-                minLines: 30,
-                maxLines: 30
-            });
-            editor.resize();
-        </script>
     </body>
 </html>

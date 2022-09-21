@@ -35,3 +35,10 @@ function compileProof() {
     }
     resultTrace.appendChild(table);
 }
+
+var editor = ace.edit("editor", {
+    minLines: 30,
+    maxLines: 30
+});
+editor.session.setMode("ace/mode/natural");
+editor.resize();
