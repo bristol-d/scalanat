@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Natural deduction</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <script src="./target/scala-3.2.0/scalanat-web-fastopt/main.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.11.0/ace.js" integrity="sha512-NO/iPwtX2eO94dRYExWxykTKj8OtABi19cQWCwblHUZpMSymLo3Oc9WCT2LM3F8SSkrZBCS+NtEeDhI9fkaSfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <main>
+            <div class="window">
+                <h1>Proof Editor</h1>
+                <div id="editor">assume a and b
+    andE1 1
+    andE2 1
+    andI 3, 2
+discharge
+</div>
+            </div>
+            <div class="window">
+
+            </div>
+        </main>
+        <script>
+            var editor = ace.edit("editor", {
+                minLines: 30,
+                maxLines: 30
+            });
+            editor.resize();
+        </script>
+    </body>
+</html>
