@@ -2,6 +2,9 @@ package scalanat.deduction
 
 import scalanat.term.*
 
+/**
+ * notI : p derives F / not p
+ */
 object NegationIntroduction extends Rule:
     val length = 1
     val name = "¬I"
@@ -10,6 +13,9 @@ object NegationIntroduction extends Rule:
         case _ => RuleFailure(s"$name requires one sequent that concludes F.")
     }
 
+/**
+ * notE : p, not p / F
+ */
 object NegationElimination extends Rule:
     val length = 2
     val name = "¬E"
@@ -20,6 +26,9 @@ object NegationElimination extends Rule:
         case _ => RuleFailure(s"$name: requires two terms and the second must negate the first.")
     }
 
+/**
+ * lem: () / p or not p 
+ */
 object LawOfExcludedMiddle extends Rule:
     val length = 0
     val name = "LEM"
@@ -28,6 +37,9 @@ object LawOfExcludedMiddle extends Rule:
         case _ => RuleFailure(s"$name takes no parameters.")
     }
 
+/**
+ * falsum : F / p
+ */
 object Falsum extends Rule:
     val length = 1
     val name = "F"

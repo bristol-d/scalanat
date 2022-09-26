@@ -2,6 +2,9 @@ package scalanat.deduction
 
 import scalanat.term.*
 
+/**
+ * orI1 :  p / p or q
+ */
 object DisjunctionIntroduction1 extends Rule:
     val length = 1
     val name = "∨I1"
@@ -11,6 +14,9 @@ object DisjunctionIntroduction1 extends Rule:
         case _ => RuleFailure(s"$name requires exactly one term parameter.")
     }
 
+/**
+ * orI2 :  p / q or p
+ */
 object DisjunctionIntroduction2 extends Rule:
     val length = 1
     val name = "∨I2"
@@ -20,6 +26,9 @@ object DisjunctionIntroduction2 extends Rule:
         case _ => RuleFailure(s"$name requires exactly one term parameter.")
     }
 
+/**
+ * orE : p or q, p derives r, q derives r / r 
+ */
 object DisjunctionElimination extends Rule:
     val length = 3
     val name = "∨E"

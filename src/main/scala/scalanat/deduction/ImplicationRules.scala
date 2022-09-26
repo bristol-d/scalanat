@@ -2,6 +2,9 @@ package scalanat.deduction
 
 import scalanat.term.*
 
+/**
+ * impI : p derives q / p imp q
+ */
 object ImplicationIntroduction extends Rule:
     val length = 1
     val name = "⇒I"
@@ -10,6 +13,10 @@ object ImplicationIntroduction extends Rule:
         case _ => RuleFailure(s"$name: requires a sequent.")
     }
 
+/**
+ * impE : p imp q, p / q
+ * also known as modus ponens
+ */
 object ImplicationElimination extends Rule:
     val length = 2
     val name = "⇒E"
