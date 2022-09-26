@@ -125,3 +125,26 @@ class ProofTests extends munit.FunSuite:
         val result = Proof(source)
         assertSuccess(result, "Proved: a | (b | c) #- (a | b) | c")
     }
+
+    test("referring to future line produces correct error") {
+        val source = """assume a and b
+                       |    rule andE1 3
+                       |discharge""".stripMargin
+        val result = Proof(source)
+        result match {
+            case Success(_) => assert(false, "should not succeed")
+            case Failure(m, _) => assertEquals(m, "Line 2: No previous line 3 at this point.")
+        }
+    }
+
+    test("referring to current line produces correct error") {
+        val source = """assume a and b
+                       |    rule andE1 2
+                       |discharge""".stripMargin
+        val result = Proof(source)
+        result match {
+            case Success(_) => assert(false, "should not succeed")
+            case Failure(m, _) => assertEquals(m, "Line 2: Line cannot refer to itself.")
+        }
+    }
+

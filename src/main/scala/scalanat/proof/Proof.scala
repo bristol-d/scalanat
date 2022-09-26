@@ -151,6 +151,8 @@ object Proof:
 
     def checkIndexes(indexes: Seq[Int], activemap: Map[Int, Boolean], counter: Int): Unit =
         indexes.foreach { i =>
+            if i == counter then
+                throw ProofException(s"Line $counter: Line cannot refer to itself.", Seq())
             if !activemap.contains(i) then
                 throw ProofException(s"Line $counter: No previous line $i at this point.", Seq())
             if !activemap(i) then
