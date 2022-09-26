@@ -7,3 +7,7 @@
 
 On the console, to see proper unicode fonts, `chcp 65001` and use a unicode
 compatible font.
+
+## Building the web part for export
+
+  - Copy `scalajs/target/scala-3.2.0/scalanat-web-fastopt/main.js` to `program.js`.
