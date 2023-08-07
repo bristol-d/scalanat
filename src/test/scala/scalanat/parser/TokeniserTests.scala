@@ -29,8 +29,8 @@ class TokeniserTests extends munit.FunSuite:
         val input = Seq(
             "and", "&", "/\\", "∧",
             "or", "|", "\\/", "∨",
-            "not", "-", "~", "¬",
-            "imp", "=>", "⇒",
+            "not", "~", "¬",
+            "imp", "->", "→",
         )
         val tokens = Tokeniser(input.mkString(" "))
         assertEquals(tokens, input map OperatorToken.apply)
@@ -42,14 +42,14 @@ class TokeniserTests extends munit.FunSuite:
     }
 
     test("a longer expression") {
-        val tokens = Tokeniser("p and q or r => not F")
+        val tokens = Tokeniser("p and q or r -> not F")
         assertEquals(tokens, Seq(
             VariableToken("p"),
             OperatorToken("and"),
             VariableToken("q"),
             OperatorToken("or"),
             VariableToken("r"),
-            OperatorToken("=>"),
+            OperatorToken("->"),
             OperatorToken("not"),
             ValueToken(false)
         ))
@@ -114,14 +114,14 @@ class TokeniserTests extends munit.FunSuite:
     }
 
     test("tokens starting with T/F") {
-        assertEquals(Tokeniser("T => F"), Seq(
+        assertEquals(Tokeniser("T -> F"), Seq(
             ValueToken(true),
-            OperatorToken("=>"),
+            OperatorToken("->"),
             ValueToken(false),
         ))
-        assertEquals(Tokeniser("T=>F"), Seq(
+        assertEquals(Tokeniser("T->F"), Seq(
             ValueToken(true),
-            OperatorToken("=>"),
+            OperatorToken("->"),
             ValueToken(false),
         ))
         assertEquals(Tokeniser("Ta"), TokeniserProblem("At end of string, did not recognise token 'Ta'."))

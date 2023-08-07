@@ -134,8 +134,8 @@ object Parser:
         "~" -> "not",
         "¬" -> "not",
         "imp" -> "imp",
-        "=>" -> "imp",
-        "⇒" -> "imp"
+        "->" -> "imp",
+        "→" -> "imp"
     )
 
     def adjustToken(t: Token): Token = t match {

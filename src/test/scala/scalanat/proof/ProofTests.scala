@@ -68,7 +68,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule orE 9, 5, 8          # 10: not a or b
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: a => b #- ~a | b")
+        assertSuccess(result, "Proved: a -> b #- ~a | b")
     }
 
     test ("def of imp, backwards") {
@@ -85,7 +85,7 @@ class ProofTests extends munit.FunSuite:
                        |    rule impI 10              # 11: a imp b
                        |discharge""".stripMargin
         val result = Proof(source)
-        assertSuccess(result, "Proved: ~a | b #- a => b")
+        assertSuccess(result, "Proved: ~a | b #- a -> b")
     }
 
     test("commutativity of or") {

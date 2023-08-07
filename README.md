@@ -16,7 +16,7 @@ See the unit tests for examples of how to use, or open `out/index.html` and play
 ## Proof language
 
 Terms can use constants T and F, variables a-z and operators and, or, not, imp
-which can also be written `&, |, ~, =>` or with the unicode characters ∧ ∨ ¬ ⇒, at least if your system supports UTF-8.
+which can also be written `&, |, ~, ->` or with the unicode characters ∧ ∨ ¬ →, at least if your system supports UTF-8.
 
 (On the windows console, with a suitable font installed, `chcp 65001` enables UTF-8.)
 

@@ -24,7 +24,7 @@ class ImplicationRuleTests extends munit.FunSuite:
             ImplicationIntroduction(
                 VariableTerm("p")
             ),
-            RuleFailure("⇒I: requires a sequent.")
+            RuleFailure("→I: requires a sequent.")
         )
     }
 
@@ -61,7 +61,7 @@ class ImplicationRuleTests extends munit.FunSuite:
                 ),
                 VariableTerm("q")
             ),
-            RuleFailure("⇒E: second term must be the assumption of the first.")
+            RuleFailure("→E: second term must be the assumption of the first.")
         )
 
         assertEquals(
@@ -75,6 +75,6 @@ class ImplicationRuleTests extends munit.FunSuite:
                 ),
                 VariableTerm("p")
             ),
-            RuleFailure("⇒E: requires an implication and a second term.")
+            RuleFailure("→E: requires an implication and a second term.")
         )
     }

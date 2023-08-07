@@ -20,13 +20,13 @@ object EnglishSymbols extends Symbols:
 object DefaultSymbols extends Symbols:
     def and = "∧"
     def or = "∨"
-    def imp = "⇒"
+    def imp = "→"
     def not = "¬"
     def seq = "⊢"
 
 object AsciiSymbols extends Symbols:
     def and = "&"
     def or = "|"
-    def imp = "=>"
+    def imp = "->"
     def not = "~"
     def seq = "#-"

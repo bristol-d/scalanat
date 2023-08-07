@@ -8,7 +8,7 @@ import scala.annotation.tailrec
  * and & /\ ∧
  * or  | \/ ∨
  * not - ~ ¬
- * imp => ⇒
+ * imp -> →
  * T F
  */
 sealed trait Token
@@ -22,9 +22,9 @@ case class CloseBracketToken() extends Token
 case class TokeniserProblem(message: String)
 
 object Tokeniser:
-    val OneCharOps = Set('&', '|', '∧', '∨', '-', '~', '¬', '⇒')
+    val OneCharOps = Set('&', '|', '∧', '∨', '~', '¬', '→')
     val Words = Set("and", "or", "not", "imp")
-    val Symbols = Set("/\\", "\\/", "=>")
+    val Symbols = Set("/\\", "\\/", "->")
 
     type State = (Seq[Token], Seq[Char])
     enum Scan:
